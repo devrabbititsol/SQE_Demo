@@ -11,7 +11,7 @@ import com.configurations.Constants;
 import com.configurations.ExtentConfigurations;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Parameters;
-import web.sqe_demo.parabank.webpageclasses.Transfer_fund_screen;
+import web.sqe_demo.parabank.webpageclasses.Home_Screen;
 import web.sqe_demo.parabank.webpageclasses.Screen_Test;
 import com.utilities.BaseClass;
 import com.utilities.ConfigFilesUtility;
@@ -19,7 +19,7 @@ import com.utilities.Utilities;
 import org.json.JSONObject;
 
 @SuppressWarnings("unused")
-public class TC_Parabank extends BaseClass {
+public class TC_Home_Test extends BaseClass {
 	ExtentReports reports;
 	ExtentTest test;
 	ITestResult result;
@@ -28,41 +28,49 @@ public class TC_Parabank extends BaseClass {
 	private String browserName = "chrome";
 	public boolean isElementDispalyed = false;
 	public static final int datasetsLength = 1;
-	String[] datasetNames = new String[] {"DS"};
+	String[] datasetNames = new String[] {"ds2"};
 
-	public TC_Parabank() throws Exception {
+	public TC_Home_Test() throws Exception {
 		PropertyConfigurator.configure("log4j.properties");
-		logger = Logger.getLogger(TC_Parabank.class);
+		logger = Logger.getLogger(TC_Home_Test.class);
 		configFileObj = new ConfigFilesUtility();
-		configFileObj.loadPropertyFile("tc_parabank.properties");
+		configFileObj.loadPropertyFile("tc_home_test.properties");
 	}
 
 	@BeforeTest
 	@Parameters("browser")
 	public void browserName(String browser) throws Exception {
 		browserName = browser;
-		reports = ExtentConfigurations.getExtentInstance(reportsPath, projectPath, Transfer_fund_screen.projectName);
-		test = reports.startTest(setTestcaseName(browserName,"TC_Parabank - " + datasetNames[0]));
+		reports = ExtentConfigurations.getExtentInstance(reportsPath, projectPath, Home_Screen.projectName);
+		test = reports.startTest(setTestcaseName(browserName,"TC_Home_Test - " + datasetNames[0]));
 	}
 
 	
 	public void setUP() throws Exception {
-		String primaryInfo = Transfer_fund_screen.primaryInfo;
+		String primaryInfo = Home_Screen.primaryInfo;
 		Constants.PRIMARY_INFO = primaryInfo;
 		driver = launchBrowser(browserName, configFileObj);
 	}
 
-	public void Transfer_fund_screenTest(int i) throws Exception {
+	public void Home_ScreenTest(int i) throws Exception {
 
 	 try{
 		int datasetScreencount = 1;
-		Transfer_fund_screen objTransfer_fund_screen = PageFactory.initElements(driver, Transfer_fund_screen.class);
-		testLogHeader(test, "Verify Transfer_fund_screen page");
-		objTransfer_fund_screen.fillinputInput_364904(configFileObj.getProperty("Input"+ i + datasetScreencount));
-		printSuccessLogAndReport(test, logger,  "Entered Input : " + configFileObj.getProperty("Input"+ i + datasetScreencount));
-		objTransfer_fund_screen.clkinputTransfer_364913();
-		printInfoLogAndReport(test, logger, "Clicked on TransferButton");
-		
+		Home_Screen objHome_Screen = PageFactory.initElements(driver, Home_Screen.class);
+		testLogHeader(test, "Verify Home_Screen page");
+		objHome_Screen.clkAContactUs_371660();
+		printSuccessLogAndReport(test, logger,  "Text is displayed as : ContactUsLink");
+		String text2 = objHome_Screen.clkAAboutUs_371666();
+		if(skipifElementisNotDisplayed()) {
+		if(text2.equalsIgnoreCase(configFileObj.getProperty("AboutUs"+ i + datasetScreencount))){
+			printSuccessLogAndReport(test, logger,  "Validated Link Text : " + configFileObj.getProperty("AboutUs"+ i + datasetScreencount));
+		} else {
+			printFailureLogAndReport(test, logger,  "Link Text is not displayed  : " + configFileObj.getProperty("AboutUs"+ i + datasetScreencount));
+		}
+
+		}		objHome_Screen.clkAAdminPage_371663();
+		printSuccessLogAndReport(test, logger,  "Text is displayed as : AdminPageLink");
+
 	   } catch (Exception e) {
 		  isElementDispalyed = false;
 		  printFailureLogAndReport(test, logger,  "Element is not found" + e.getLocalizedMessage());
@@ -78,8 +86,12 @@ public class TC_Parabank extends BaseClass {
 		testLogHeader(test, "Verify Screen_Test page");
 		objScreen_Test.clkAAboutUs_371534();
 		printSuccessLogAndReport(test, logger,  "Text is displayed as : AboutUsLink");
-		objScreen_Test.clkAAdminPage_371531();
-		printSuccessLogAndReport(test, logger,  "Text is displayed as : AdminPageLink");
+		String text2 = objScreen_Test.clkAAdminPage_371531();
+		if(text2.equalsIgnoreCase(configFileObj.getProperty("AdminPage"+ i + datasetScreencount))){
+			printSuccessLogAndReport(test, logger,  "Validated Link Text : " + configFileObj.getProperty("AdminPage"+ i + datasetScreencount));
+		} else {
+			printFailureLogAndReport(test, logger,  "Link Text is not displayed  : " + configFileObj.getProperty("AdminPage"+ i + datasetScreencount));
+		}
 
 	   } catch (Exception e) {
 		  isElementDispalyed = false;
@@ -92,8 +104,8 @@ public class TC_Parabank extends BaseClass {
 		for(int datasets = 1; datasets <= Screen_Test.datasetsLength; datasets++) {
 			isElementDispalyed = true;			
 			setUP();			
-			if(datasets > 1) { test = reports.startTest(setTestcaseName(browserName,"TC_Parabank - " + datasetNames[datasets-1]));}
-			if(isElementDispalyed) { Transfer_fund_screenTest(datasets);}
+			if(datasets > 1) { test = reports.startTest(setTestcaseName(browserName,"TC_Home_Test - " + datasetNames[datasets-1]));}
+			if(isElementDispalyed) { Home_ScreenTest(datasets);}
 			if(isElementDispalyed) { Screen_TestTest(datasets);}
 			tearDown();
 		}	}
