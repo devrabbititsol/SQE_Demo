@@ -2,7 +2,6 @@ package com.utilities;
 
 import java.awt.Toolkit;
 import java.io.File;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,8 +26,6 @@ import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
-import org.openqa.selenium.winium.DesktopOptions;
-import org.openqa.selenium.winium.WiniumDriver;
 import org.testng.IRetryAnalyzer;
 import org.testng.ITestResult;
 
@@ -42,7 +39,7 @@ import io.appium.java_client.MobileElement;
 
 public class BaseClass {
 	public WebDriver driver;
-	public WiniumDriver winiumDriver;
+	
 	public static String projectPath = System.getProperty("user.dir");
 	public static String reportsPath = projectPath + File.separator + "WebReports" + File.separator + ReportPaths.reportPathName;
 	public static String desktopReportsPath = projectPath + File.separator + "DesktopReports" + File.separator + ReportPaths.reportPathName;
@@ -164,12 +161,12 @@ public class BaseClass {
 	 * @return
 	 * @throws Exception
 	 */
-	public WiniumDriver launchDesktopApp(String applicationexePath, String remoteWiniumDriverPath) throws Exception {
-		DesktopOptions options = new DesktopOptions(); 
-		options.setApplicationPath(applicationexePath); 
-		winiumDriver = new WiniumDriver(new URL(remoteWiniumDriverPath), options);
-		return winiumDriver;
-	}
+//	public WiniumDriver launchDesktopApp(String applicationexePath, String remoteWiniumDriverPath) throws Exception {
+//		DesktopOptions options = new DesktopOptions(); 
+//		options.setApplicationPath(applicationexePath); 
+//		winiumDriver = new WiniumDriver(new URL(remoteWiniumDriverPath), options);
+//		return winiumDriver;
+//	}
 
 	@SuppressWarnings("deprecation")
 	public WebDriver launchBrowser(String browserName, ConfigFilesUtility configFileObj) {
@@ -394,7 +391,7 @@ public class BaseClass {
 		} else {
 			name = data.toString().substring(0, 10);
 		}
-		test.log(LogStatus.INFO, "Screenshot Taken : " + Utilities.captureScreenshotDesktopApplication(winiumDriver, name));
+		//test.log(LogStatus.INFO, "Screenshot Taken : " + Utilities.captureScreenshotDesktopApplication(winiumDriver, name));
 	}
 	
 
