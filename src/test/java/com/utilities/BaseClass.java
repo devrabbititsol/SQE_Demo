@@ -2,6 +2,7 @@ package com.utilities;
 
 import java.awt.Toolkit;
 import java.io.File;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,6 +27,8 @@ import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.openqa.selenium.winium.DesktopOptions;
+import org.openqa.selenium.winium.WiniumDriver;
 import org.testng.IRetryAnalyzer;
 import org.testng.ITestResult;
 
@@ -39,8 +42,10 @@ import io.appium.java_client.MobileElement;
 
 public class BaseClass {
 	public WebDriver driver;
+	public WiniumDriver winiumDriver;
 	public static String projectPath = System.getProperty("user.dir");
 	public static String reportsPath = projectPath + File.separator + "WebReports" + File.separator + ReportPaths.reportPathName;
+	public static String desktopReportsPath = projectPath + File.separator + "DesktopReports" + File.separator + ReportPaths.reportPathName;
 	public static String mobileReportsPath = projectPath + File.separator + "MobileReports" + File.separator + ReportPaths.reportPathName;
 	private static boolean isElementDispalyed;
 	public String chromeDriverPath = projectPath + File.separator + "Resources" + File.separator + "chromedriver.exe";
@@ -63,7 +68,7 @@ public class BaseClass {
 		}
 		//isElementDispalyed = element.isDisplayed();
 		initialInputDataClear(element); // if any text in input it will clear
-		WebDriverWait wait = new WebDriverWait(driver, 30);
+		WebDriverWait wait = new WebDriverWait(driver, 20);
 		return wait.until(ExpectedConditions.visibilityOf(element));
 	
 	}
@@ -149,6 +154,21 @@ public class BaseClass {
 						.equals("complete"));
 			}
 		});
+	}
+	
+	/**
+	 * Driver instance for Desktop Applications
+	 * 
+	 * @param applicationexePath
+	 * @param remoteWiniumDriverPath
+	 * @return
+	 * @throws Exception
+	 */
+	public WiniumDriver launchDesktopApp(String applicationexePath, String remoteWiniumDriverPath) throws Exception {
+		DesktopOptions options = new DesktopOptions(); 
+		options.setApplicationPath(applicationexePath); 
+		winiumDriver = new WiniumDriver(new URL(remoteWiniumDriverPath), options);
+		return winiumDriver;
 	}
 
 	@SuppressWarnings("deprecation")
@@ -300,15 +320,46 @@ public class BaseClass {
 	public void printSuccessLogAndReport(ExtentTest test, Logger logger, String data) {
 		if (test != null) {
 			if(data.contains("Password") || data.contains("password")) {
-				String[] passwordData = data.split(":");
-				data = passwordData[0] + "****";
+				//String[] passwordData = data.split(":");
+				//data = passwordData[0] + "****";
 			}
 			test.log(LogStatus.PASS, data);
 		}
 		if (logger != null)
 			logger.info(data);
 	}
+	
+	public void printSuccessLogAndReport(String elementText, ExtentTest test, Logger logger, String data) {
+		if (test != null) {
+		if(data.contains("printMsg")) {
+			test.log(LogStatus.INFO, elementText);
+		} else {
+			test.log(LogStatus.PASS, data);
+		}
+		if (logger != null)
+			logger.info(elementText);
+		}
+	}
+	
 
+	public void printFailureLogAndReport(String elementText, ExtentTest test, Logger logger, String data) {
+		if (test != null)
+			if(data.contains("printMsg")) {
+			  test.log(LogStatus.INFO, elementText);
+			} else {
+			  test.log(LogStatus.FAIL, data);
+			}
+		if (logger != null)
+			logger.error(data);
+		String name = "";
+		if (data.toString().length() <= 20) {
+			name = data.toString();
+		} else {
+			name = data.toString().substring(0, 10);
+		}
+		
+		test.log(LogStatus.INFO, "Screenshot Taken : " + Utilities.captureScreenshot(driver, name));
+	}
 	public void printFailureLogAndReport(ExtentTest test, Logger logger, String data) {
 		if (test != null)
 			test.log(LogStatus.FAIL, data);
@@ -320,8 +371,32 @@ public class BaseClass {
 		} else {
 			name = data.toString().substring(0, 10);
 		}
+		
 		test.log(LogStatus.INFO, "Screenshot Taken : " + Utilities.captureScreenshot(driver, name));
 	}
+
+		/***
+	 * Fail status for Desktop Application Reoport
+	 * 
+	 * @param test
+	 * @param logger
+	 * @param data
+	 */
+	
+	public void printFailureLogAndReportDesktop(ExtentTest test, Logger logger, String data) {
+		if (test != null)
+			test.log(LogStatus.FAIL, data);
+		if (logger != null)
+			logger.error(data);
+		String name = "";
+		if (data.toString().length() <= 20) {
+			name = data.toString();
+		} else {
+			name = data.toString().substring(0, 10);
+		}
+		test.log(LogStatus.INFO, "Screenshot Taken : " + Utilities.captureScreenshotDesktopApplication(winiumDriver, name));
+	}
+	
 
 	public void printInfoLogAndReport(ExtentTest test, Logger logger, String data) {
 		logger.info(data);
@@ -364,8 +439,7 @@ public class BaseClass {
 
 	// upload a file
 	public void uploadFile(String name, String xpath) {
-		try {
-			
+		try {	
 			WebElement element = waitForExpectedElement(driver,By.xpath(xpath));	
 			element.sendKeys(name);
 		} catch (Exception e) {
