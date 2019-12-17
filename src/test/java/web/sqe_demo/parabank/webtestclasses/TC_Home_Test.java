@@ -63,9 +63,9 @@ public class TC_Home_Test extends BaseClass {
 		String text2 = objHome_Screen.clkAAboutUs_371666();
 		if(skipifElementisNotDisplayed()) {
 		if(text2.equalsIgnoreCase(configFileObj.getProperty("AboutUs"+ i + datasetScreencount))){
-			printSuccessLogAndReport(test, logger,  "Validated Link Text : " + configFileObj.getProperty("AboutUs"+ i + datasetScreencount));
+			printSuccessLogAndReport(text2, test, logger,  "Validated Link Text : " + configFileObj.getProperty("AboutUs"+ i + datasetScreencount));
 		} else {
-			printFailureLogAndReport(test, logger,  "Link Text is not displayed  : " + configFileObj.getProperty("AboutUs"+ i + datasetScreencount));
+			printFailureLogAndReport(text2, test, logger,  "Link Text is not displayed  : " + configFileObj.getProperty("AboutUs"+ i + datasetScreencount));
 		}
 
 		}		objHome_Screen.clkAAdminPage_371663();
@@ -88,9 +88,9 @@ public class TC_Home_Test extends BaseClass {
 		printSuccessLogAndReport(test, logger,  "Text is displayed as : AboutUsLink");
 		String text2 = objScreen_Test.clkAAdminPage_371531();
 		if(text2.equalsIgnoreCase(configFileObj.getProperty("AdminPage"+ i + datasetScreencount))){
-			printSuccessLogAndReport(test, logger,  "Validated Link Text : " + configFileObj.getProperty("AdminPage"+ i + datasetScreencount));
+			printSuccessLogAndReport(text2, test, logger,  "Validated Link Text : " + configFileObj.getProperty("AdminPage"+ i + datasetScreencount));
 		} else {
-			printFailureLogAndReport(test, logger,  "Link Text is not displayed  : " + configFileObj.getProperty("AdminPage"+ i + datasetScreencount));
+			printFailureLogAndReport(text2, test, logger,  "Link Text is not displayed  : " + configFileObj.getProperty("AdminPage"+ i + datasetScreencount));
 		}
 
 	   } catch (Exception e) {
