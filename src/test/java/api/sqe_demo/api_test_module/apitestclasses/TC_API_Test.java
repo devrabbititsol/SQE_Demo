@@ -19,7 +19,7 @@ public class TC_API_Test extends BaseClass {
 	ITestResult result;
 	private Logger logger;
 	
-	String[] datasetNames = new String[] {"Default"};
+	String[] datasetNames = new String[] {"ds1"};
 	private ConfigFilesUtility configFileObj;
 	String projectPath = System.getProperty("user.dir");
 	String reportsPath = projectPath + "/APIReports/" + ReportPaths.reportPathName;
