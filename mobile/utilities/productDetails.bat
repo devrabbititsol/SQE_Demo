@@ -1,3 +1,3 @@
 
-adb.exe -s 1215fcadde7a1104	 shell getprop ro.product.model
-adb.exe -s 1215fcadde7a1104	 shell getprop ro.build.version.release
+adb -s ZX1G42C9H6	 shell getprop ro.product.model
+adb -s ZX1G42C9H6	 shell getprop ro.build.version.release

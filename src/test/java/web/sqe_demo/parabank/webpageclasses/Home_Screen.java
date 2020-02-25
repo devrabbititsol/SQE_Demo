@@ -10,7 +10,7 @@ import com.relevantcodes.extentreports.ExtentTest;
 @SuppressWarnings("unused")
 public class Home_Screen extends BaseClass {
 	
-	public static String primaryInfo  = "{\"user_id\":7,\"executed_user_id\":7,\"is_generate\":false,\"is_execute\":false,\"is_web\":true,\"project_url\":\"https://parabank.parasoft.com/parabank/index.htm\",\"report_upload_url\":\"https://smartqe.io:443/UploadReportFile\",\"project_name\":\"SQE_Demo\",\"project_description\":\"desc\",\"project_id\":343,\"module_name\":\"parabank\",\"module_description\":\"desc\",\"sub_module_id\":0,\"module_id\":621,\"testcase_name\":\"TC_Home_Test\",\"testcase_id\":544,\"testset_id\":0,\"executed_timestamp\":-879125502,\"browser_type\":\"chrome\",\"testcase_overwrite\":false,\"client_timezone_id\":\"Asia/Calcutta\"}";
+	public static String primaryInfo  = "{\"user_id\":7,\"executed_user_id\":7,\"is_generate\":false,\"is_execute\":false,\"is_web\":true,\"project_url\":\"https://parabank.parasoft.com/parabank/index.htm\",\"report_upload_url\":\"https://smartqe.io:443/UploadReportFile\",\"project_name\":\"SQE_Demo\",\"project_description\":\"desc\",\"project_id\":343,\"module_name\":\"parabank\",\"module_description\":\"desc\",\"sub_module_id\":0,\"module_id\":621,\"testcase_name\":\"TC_Home_Test\",\"testcase_id\":544,\"testset_id\":0,\"executed_timestamp\":2060347311,\"browser_type\":\"chrome\",\"testcase_overwrite\":true,\"client_timezone_id\":\"Asia/Calcutta\"}";
 
 	public static String projectName = "sqe_demo";
 	public WebDriver driver;
