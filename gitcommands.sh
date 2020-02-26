@@ -1,7 +1,7 @@
 cd /home/devrabbit/SmartQE/SmartQE-Users/7/Selenium/SQE_Demo
 cd /home/devrabbit/SmartQE/SmartQE-Users/7/Selenium/SQE_Demo
 git init
- git add .
+git add .
 git rm -r --cached target
 git rm -r --cached test-output
 git rm -r --cached gitcommands.bat
