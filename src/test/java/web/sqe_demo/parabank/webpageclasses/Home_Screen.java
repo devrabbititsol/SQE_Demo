@@ -28,6 +28,7 @@ public class Home_Screen extends BaseClass {
 		waitForExpectedElement(driver, ContactUs_371660A);		
 		String text = ContactUs_371660A.getText();
 		ContactUs_371660A.click();
+//comment
 		return text;
 	}
 
