@@ -91,8 +91,8 @@ public class TC_Home_Test extends BaseClass {
 			isElementDispalyed = true;			
 			setUP();			
 			setTestcaseName(browserName,"TC_Home_Test - " + configFileObj.getProperty("dataset" + (datasets)));
-			Home_ScreenTest(datasets);
-			Screen_TestTest(datasets);
+			if(isElementDispalyed) {Home_ScreenTest(datasets);}
+			if(isElementDispalyed) {Screen_TestTest(datasets);}
 			tearDown();
 		}	}
 
