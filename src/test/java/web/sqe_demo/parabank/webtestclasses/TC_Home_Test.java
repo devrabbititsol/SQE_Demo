@@ -93,8 +93,7 @@ public class TC_Home_Test extends BaseClass {
 			setTestcaseName(browserName,"TC_Home_Test - " + configFileObj.getProperty("dataset" + (datasets)));
 			if(isElementDispalyed) {Home_ScreenTest(datasets);}
 			if(isElementDispalyed) {Screen_TestTest(datasets);}
-			tearDown();
-		}	}
+			tearDown();}}
 
 	
 	public void tearDown() throws Exception {
