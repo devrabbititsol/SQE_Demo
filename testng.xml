@@ -4,7 +4,7 @@
 	<test name="chrometest">
   	<parameter name="browser" value="chrome"/>
 		<classes>
-			<class name="web.sqe_demo.parabank.webtestclasses.TC_Home_Test" />
+			<class name="web.sqe_demo.parabank.webtestclasses.TC_LoginToLogout" />
 			<class name="com.fileupload.ReportUpload" />
 		</classes>
 	</test>
