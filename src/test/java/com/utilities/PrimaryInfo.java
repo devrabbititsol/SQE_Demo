@@ -1,7 +1,8 @@
 package com.utilities;
 
 public class PrimaryInfo {
-	public void primaryInfoData() {
-		//test
+	public String primaryInfoData() {
+		String data = null;
+		return data;
 	}
 }

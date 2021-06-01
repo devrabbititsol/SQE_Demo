@@ -9,10 +9,13 @@ public class ConfigFilesUtility {
 	FileInputStream fis;
 	Properties prop;
 	public void loadPropertyFile(String configFileName) throws Exception {
+		
 		src = new File("." + File.separator + "ConfigFiles" + File.separator + configFileName);
-		fis = new FileInputStream(src);
-		prop = new Properties();
-		prop.load(fis);
+		if(src.exists()) {
+		  fis = new FileInputStream(src);
+		  prop = new Properties();
+		  prop.load(fis);
+		}
 	}
 	
 	public String getProperty(String propKey) {

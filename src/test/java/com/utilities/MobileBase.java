@@ -19,7 +19,6 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.Point;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.DesiredCapabilities;
-import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.ITestResult;
@@ -44,7 +43,7 @@ import io.appium.java_client.service.local.AppiumDriverLocalService;
 import io.appium.java_client.service.local.AppiumServiceBuilder;
 import io.appium.java_client.touch.offset.PointOption;
 
-public class MobileBase {
+public class MobileBase  extends ReportPortalBaseClass {
 	
 	// Environment variables path
 	private String appiumServerJSPath = System.getenv("APPIUM_JS_PATH");
@@ -56,7 +55,7 @@ public class MobileBase {
 	public AppiumDriver<MobileElement> appiumDriver;
 	private ConfigFilesUtility configFileObj;
 	public String empty = StringUtils.EMPTY;
-	private String device;
+	public String device;
 	private JSONArray jsonArray;
 	@SuppressWarnings("rawtypes")
 	private ThreadLocal<AppiumDriver> driverThread;
@@ -67,6 +66,12 @@ public class MobileBase {
 	private String username;
 	private String accesskey;
 	private String sauceUrl;
+	private String deviceNameReport;
+	private String platformNameReport;
+	private String platformVersionReport;
+	private String executionEnvironmentReport;
+	//public static final org.apache.logging.log4j.Logger LOGGER = LogManager.getLogger(BaseClass.class);
+
    
 	/**************************************************** Desired Capabilities (Android/iOS) ************************************************/
 	/*
@@ -97,15 +102,9 @@ public class MobileBase {
 			capabilities.setCapability("autoAcceptAlerts",true);
 			capabilities.setCapability("bundleid", configFileObj.getProperty("appPackage").trim());
 			capabilities.setCapability("wdaLaunchTimeout",60000); // launching webdriver agent ti
-			if ((platformVersion != null) && !(platformVersion.trim().isEmpty())) {
-				capabilities.setCapability(MobileCapabilityType.PLATFORM_VERSION, configFileObj.getProperty("platformVersion").trim());
-			} else {
-				platformVersion = configFileObj.getProperty("VERSION").trim();
-				capabilities.setCapability(MobileCapabilityType.PLATFORM_VERSION, configFileObj.getProperty("VERSION").trim());
-			}
+			capabilities.setCapability(MobileCapabilityType.PLATFORM_VERSION, configFileObj.getProperty("platformVersion").trim());
 			capabilities.setCapability("wdaStartupRetries", 2); //webdriveragent retries 4 times
 			capabilities.setCapability(MobileCapabilityType.AUTOMATION_NAME, "XCUITest");
-			
 			appiumDriver = new IOSDriver<MobileElement>(new URL(appiumDriverService.getUrl().toString()), capabilities);
 		} else {
 			capabilities.setCapability(AndroidMobileCapabilityType.AUTO_GRANT_PERMISSIONS,true);
@@ -115,19 +114,12 @@ public class MobileBase {
 			//capabilities.setCapability("appWaitActivity", configFileObj.getProperty("appActivity").trim());
 			if ((platformVersion != null) && !(platformVersion.trim().isEmpty())) {
 				capabilities.setCapability(MobileCapabilityType.PLATFORM_VERSION, configFileObj.getProperty("platformVersion").trim());
-			} else {
-				platformVersion = configFileObj.getProperty("VERSION").trim();
-				capabilities.setCapability(MobileCapabilityType.PLATFORM_VERSION, configFileObj.getProperty("VERSION").trim());
-			}
+			} 
 			if ((platformVersion != null) && !platformVersion.trim().isEmpty() && (Integer.valueOf(platformVersion.trim().split("\\.")[0]) >= 7) ) {
 				capabilities.setCapability(MobileCapabilityType.AUTOMATION_NAME, AutomationName.ANDROID_UIAUTOMATOR2);
 				capabilities.setCapability("unicodeKeyboard",  false);
 				capabilities.setCapability("resetKeyboard", false);
-			} else if (Double.valueOf(configFileObj.getProperty("VERSION").trim()) >= 7 ) {
-				capabilities.setCapability(MobileCapabilityType.AUTOMATION_NAME, AutomationName.ANDROID_UIAUTOMATOR2);
-				capabilities.setCapability("unicodeKeyboard",  false);
-				capabilities.setCapability("resetKeyboard", false);
-			}
+			} 
 			appiumDriver = new AndroidDriver<MobileElement>(new URL(appiumDriverService.getUrl().toString()), capabilities);
 		}
 		appiumDriver.manage().timeouts().implicitlyWait(60, TimeUnit.SECONDS);
@@ -148,18 +140,13 @@ public class MobileBase {
 			platformVersion = platformVersion.isEmpty() ? configFileObj.getProperty("VERSION") : platformVersion;
 		} else {
 			reportCreation("info", "Device Manufacture : " + deviceManufacturer);
-			//test.log(LogStatus.INFO, "Device Manufacture : " + deviceManufacturer);
 		}
 		reportCreation("info", "Device Model : " + deviceModel);
-		//test.log(LogStatus.INFO, "Device Model : " + deviceModel);
-		//test.log(LogStatus.INFO, "Device Screen Size : " + deviceScreenSize);
 		reportCreation("info", "Platform Name : " + platformName);
-		reportCreation("info", "Platform Version : " + platformVersion);
-		//test.log(LogStatus.INFO, "Platform Name : " + platformName);
-		//test.log(LogStatus.INFO, "Platform Version : " + platformVersion);
-		
+		reportCreation("info", "Platform Version : " + platformVersion);	
+		reportCreation("info", "Execution Mode : " + executionEnvironmentReport);
 		return appiumDriver;
-}
+	}
 	
 
 	
@@ -178,17 +165,20 @@ public class MobileBase {
 	            throws Exception {
 		 
 		 device = deviceName;
-		
-		 if(!isSauce) {
+		 
+		if(!isSauce) {
+			executionEnvironmentReport = "Local";
 			 return launchMobileDriver();
 		 } else {
+				
 			DesiredCapabilities capabilities = new DesiredCapabilities();
 			capabilities.setCapability(MobileCapabilityType.DEVICE_NAME, deviceName);
 			capabilities.setCapability("browserName", "");
 			capabilities.setCapability("deviceOrientation", deviceOrientation);
 			capabilities.setCapability("noReset", "false");
 			capabilities.setCapability("name", className);
-			capabilities.setCapability("testobject_session_creation_timeout", "900000");
+			//capabilities.setCapability("testobject_session_creation_timeout", "900000");
+			capabilities.setCapability("testobject_session_creation_timeout", "200000");
 			capabilities.setCapability("unicodeKeyboard", false);
 			capabilities.setCapability("resetKeyboard", false);
 			capabilities.setCapability(AndroidMobileCapabilityType.AUTO_GRANT_PERMISSIONS, true);
@@ -199,13 +189,15 @@ public class MobileBase {
 			capabilities.setCapability("testobject_suite_name ", "Default Appium Suite");
 			capabilities.setCapability("testobject_test_name ", "Default Appium Test");
 			 String executionDevicePlatform = configFileObj.getProperty("executionPlatform");
-			if (executionDevicePlatform.equalsIgnoreCase("saucelabreal")) {
+			if (executionDevicePlatform.equalsIgnoreCase("saucelabdevice")) {
 				//capabilities.setCapability(MobileCapabilityType.APP, app);
+				executionEnvironmentReport = "SauceLab device";
 				capabilities.setCapability("testobject_api_key", testObjectApiKey);
 				capabilities.setCapability("testobject_app_id", "1");
 				//capabilities.setCapability("appiumVersion ", "1.15.1");
-				
+				sauceUrl = app;
 			} else {
+				executionEnvironmentReport = "SauceLab Virtual";
 				capabilities.setCapability(MobileCapabilityType.APP, app);
 				// capabilities.setCapability(MobileCapabilityType.APPIUM_VERSION,appiumVersion);
 				capabilities.setCapability("build", projectName);
@@ -215,6 +207,9 @@ public class MobileBase {
 				SauceOnDemandAuthentication authentication = new SauceOnDemandAuthentication(username, accesskey);
 				sauceUrl = "https://" + authentication.getUsername() + ":" + authentication.getAccessKey() + seleniumURI + "/wd/hub";
 			}
+			
+			deviceNameReport = deviceName;
+			platformVersionReport = platformVersion;
 			
 
 			/**
@@ -229,16 +224,25 @@ public class MobileBase {
 			ThreadLocal<String> sessionId = new ThreadLocal<String>();
 			
 			if(platformName.equalsIgnoreCase("Android")){
+				platformNameReport = "Android";
 				capabilities.setCapability(MobileCapabilityType.AUTOMATION_NAME, AutomationName.ANDROID_UIAUTOMATOR2);
 			// Launch remote browser and set it as the current thread
 				driverThread.set(new AndroidDriver(new URL(sauceUrl), capabilities));
 			} else {
+				platformNameReport = "iOS";
 				capabilities.setCapability(MobileCapabilityType.AUTOMATION_NAME, AutomationName.IOS_XCUI_TEST);
 				driverThread.set(new IOSDriver(new URL(sauceUrl), capabilities));	
 			}
-			 id = ((RemoteWebDriver) driverThread.get()).getSessionId().toString();
+			 id = driverThread.get().getSessionId().toString();
 			sessionId.set(id);
 			appiumDriver = driverThread.get();
+			if(deviceNameReport != null) {
+				reportCreation("info", "Device Name : " + deviceNameReport);
+				reportCreation("info", "Platform Name : " + platformNameReport);
+				reportCreation("info", "Platform Version : " + platformVersionReport);
+				//reportCreation("info", "Browser Name : " + browserNameReport);
+				reportCreation("info", "Execution Mode : " + executionEnvironmentReport);
+			}
 	        
 		 }
 	      return appiumDriver;
@@ -281,7 +285,7 @@ public class MobileBase {
 			};
 		  data.add(obj);
 		 } else {
-			 isSauce = true;
+			isSauce = true;
 			configFileObj = new ConfigFilesUtility();
 			configFileObj.loadPropertyFile("SauceDeviceCapabilities.properties");
 			String js = configFileObj.getProperty("devices");
@@ -291,9 +295,15 @@ public class MobileBase {
 			for(int i=0;i<devicesArray.length();i++) {
 				
 					JSONObject devicesObj = devicesArray.getJSONObject(i);
+					String deviceName = "";
+					if(executionDevicePlatform.equals("saucelabvirtural")) {
+						deviceName = devicesObj.optString("deviceName");		
+					} else {
+						deviceName = devicesObj.optString("sauceDeviceId");	
+					}
 					//String appe = "https://github.com/saucelabs-training/demo-java/blob/master/appium-example/resources/android/GuineaPigApp-debug.apk?raw=true";
 					Object obj = new Object[]{
-					devicesObj.optString("deviceName"),
+					deviceName,
 					devicesObj.optString("devicePlatformName"),
 					devicesObj.optString("devicePlatformVersion"),
 					devicesObj.optString("appium_version","1.9.1"),
@@ -326,7 +336,7 @@ public class MobileBase {
 				try {
 					if (!isSauce) {
 						//((AndroidDriver<MobileElement>) appiumDriver).pressKey(new KeyEvent(AndroidKey.ENTER));
-						appiumDriver.hideKeyboard();
+						//appiumDriver.hideKeyboard();
 					}
 				} catch (Exception e) {
 					// TODO: handle exception
@@ -404,7 +414,7 @@ public class MobileBase {
 	/**************************************************** Find Element **************************************************/
 	
 	protected MobileElement findElement(String xpath,boolean isSkip,boolean needToScroll) {
-		MobileElement element = implementationToFindElement(xpath,isSkip,needToScroll);;
+		MobileElement element = implementationToFindElement(xpath,isSkip,needToScroll);
 		return element;
 	}
 	
@@ -533,6 +543,8 @@ public class MobileBase {
 			GlobalData.reportData(tescaseName, jsonoBj);
 			GlobalData.primaryInfoData(confObj);
 			jsonoBj.put("browser_type", "Mobile");
+			
+			
 			//reportCreation("DeviceName", device);
 		}
 
@@ -557,13 +569,20 @@ public class MobileBase {
 		//test.log(LogStatus.FAIL, message);
 		logger.error(message);
 		Utilities.setMobilePlatform();
-		reportFailureCreation("fail", message,Utilities.captureScreenshot(mobileDriver, message + " is Failed"));
+		String base64Data =Utilities.captureScreenshot(mobileDriver, message + " is Failed");
+	
+		if(LOGGER != null) LOGGER.error("RP_MESSAGE#BASE64#{}#{}",base64Data,message);
+		reportFailureCreation("fail",message,base64Data);
+
+		
+		//reportFailureCreation("fail", message,Utilities.captureScreenshot(mobileDriver, message + " is Failed"));
 	}
 	
 	//private static ExtentTest extentTest;
 	// ScreenName Header for Reports
 	public void testLogHeader(String data) {
 		//extentTest =  test;
+		if(LOGGER != null) LOGGER.info(data);
 		reportHeadersCreation("info", data);
 		//test.log(LogStatus.INFO, "<b style = 'background-color: #ffffff; color : #ff8f00 ; font-size : 18px' >"+ data + "</b>");
 	}
@@ -573,6 +592,7 @@ public class MobileBase {
 		jsonObject.put("result_type", "screen");
 		jsonObject.put("text", data);
 		jsonArray.put(jsonObject);
+		if(LOGGER != null) LOGGER.info(data);
 		//GlobalData.primaryInfoData(conObj);
 	}
 	
@@ -588,6 +608,7 @@ public class MobileBase {
 		JSONObject jsonObject = new JSONObject();
 		jsonObject.put("result_type", result);
 		jsonObject.put("text", data);
+		if(LOGGER != null) LOGGER.info(data);
 		jsonArray.put(jsonObject);
 	}
 	
@@ -602,7 +623,7 @@ public class MobileBase {
 	
 	/*********************************** Find the Client OS ****************************************/
 	
-	private static String OS = System.getProperty("os.name").toLowerCase();
+	private static final String OS = System.getProperty("os.name").toLowerCase();
 	private static boolean isMac() {
 		return (OS.indexOf("mac") >= 0);
 	}

@@ -1,37 +1,20 @@
 package com.fileupload;
 
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileReader;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
-
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSession;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
-import org.testng.annotations.AfterSuite;
-
 import com.configurations.GlobalData;
 import com.restassured.services.ReportPaths;
 import com.utilities.BaseClass;
 import com.utilities.Utilities;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.testng.annotations.AfterSuite;
+
+import java.io.File;
 
 @SuppressWarnings("unused")
 public class ReportUpload extends BaseClass {
 	String primaryInfo = "";
-	private String projectPath = System.getProperty("user.dir");
-	private String reportsPath = projectPath + File.separator + "APIReports" + File.separator + ReportPaths.reportPathName;
+	private final String projectPath = System.getProperty("user.dir");
+	private final String reportsPath = projectPath + File.separator + "APIReports" + File.separator + ReportPaths.reportPathName;
 	private String resultCount;
 	private String datasetResult;
 	private String reportstatus;
@@ -56,7 +39,7 @@ public class ReportUpload extends BaseClass {
 	public void uploadReport() throws Exception {
 	
 		try {
-			System.out.println(GlobalData.getReportData());
+			//System.out.println(GlobalData.getReportData());
 			JSONObject primaryInfoObj = new JSONObject(GlobalData.getPrimaryInfo());
 			boolean is_web = primaryInfoObj.optBoolean("is_web");
 			boolean isDesktopAutomation = primaryInfoObj.optBoolean("is_Desktop_Automation");
@@ -71,7 +54,7 @@ public class ReportUpload extends BaseClass {
 			String client_timezoneId = primaryInfoObj.optString("client_timezone_id");
 			String report_upload_url = primaryInfoObj.optString("report_upload_url");
 			String testcaseId = primaryInfoObj.optString("testcase_id");
-			String datasetId = primaryInfoObj.optString("testcase_id");
+			//String datasetId = primaryInfoObj.optString("testcase_id");
 			String subModuleId = primaryInfoObj.isNull("sub_module_id") ? null : primaryInfoObj.optString("sub_module_id");
 			String testsetId = primaryInfoObj.optString("testset_id").equals("0") ? "" : primaryInfoObj.optString("testset_id");
 			String testsetName = (primaryInfoObj.optString("testset_name") == null || primaryInfoObj.optString("testset_name").equals("null") || primaryInfoObj.optString("testset_name").isEmpty()) ? "" : primaryInfoObj.optString("testset_name");
@@ -109,95 +92,23 @@ public class ReportUpload extends BaseClass {
 			//System.out.println("client_time_zone_id"+  client_timezoneId);
 			//primaryInfo.put("report_data", GlobalData.getReportData().toString());
 			primaryInfo.put("testcases_result", testcasesArray);
+			primaryInfo.put("testcases_result", testcasesArray);
 			
 			System.out.println(primaryInfo.toString());
 			
-			doSaveElementsToServer(report_upload_url, primaryInfo.toString());
+			Utilities.doSaveElementsToServer(report_upload_url, primaryInfo.toString());
+			
 			
 			//new FileUploaderClient().uploadFile(report_upload_url, reportsPath, userId,executedUserId, testcaseId, testsetId, moduleId, subModuleId, is_web, resultCount, GlobalData.getReportData().toString(), mobile, client_timezoneId,datasetResult,false, startExecutionTime,endExecutionTime);
 			
 			
 		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-	
-	
-	private boolean doSaveElementsToServer(String url, String json) throws Exception {
-		try {
-			URL obj = new URL(url);
-			System.out.println(url);
-			TrustManager[] trustAllCerts = new TrustManager[] { new X509TrustManager() {
-				public X509Certificate[] getAcceptedIssuers() {
-					return null;
-				}
-
-				@Override
-				public void checkClientTrusted(X509Certificate[] arg0, String arg1) throws CertificateException {
-					// TODO Auto-generated method stub
-
-				}
-
-				@Override
-				public void checkServerTrusted(X509Certificate[] arg0, String arg1) throws CertificateException {
-					// TODO Auto-generated method stub
-
-				}
-			} };
-
-			// Install the all-trusting trust manager
-			SSLContext sc = SSLContext.getInstance("SSL");
-			sc.init(null, trustAllCerts, new java.security.SecureRandom());
-			HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
-
-			// Create all-trusting host name verifier
-			HostnameVerifier allHostsValid = new HostnameVerifier() {
-				public boolean verify(String hostname, SSLSession session) {
-					return true;
-				}
-			};
-			// Install the all-trusting host verifier
-			HttpsURLConnection.setDefaultHostnameVerifier(allHostsValid);
-			HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-			
-			con.setRequestMethod("POST");
-			con.setRequestProperty("Content-Type", "application/json");
-			con.setConnectTimeout(200000);
-			con.setConnectTimeout(200000);
-			con.setDoOutput(true);
-			OutputStream os = con.getOutputStream();
-			DataOutputStream wr = new DataOutputStream(os);
-			byte[] isoString = json.getBytes("UTF-8");
-			
-			wr.write(isoString, 0, isoString.length);
-			// wr.writeBytes(json);
-			wr.flush();
-			wr.close();
-			os.close();
-			con.connect();
-			int responseCode = con.getResponseCode();
-			System.out.println("Response Code : " + responseCode);
-			BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
-			String inputLine;
-			StringBuffer response = new StringBuffer();
-			while ((inputLine = in.readLine()) != null) {
-				response.append(inputLine);
-			}
-			in.close();
-
-			System.out.println(response.toString());
-
-			JSONObject jsonObject = new JSONObject(response.toString());
-			if (jsonObject.has("status") && !jsonObject.getString("status").equalsIgnoreCase("SUCCESS")) {
-				System.out.println("Report Exception " + jsonObject.optString("message"));
-				return false;
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
 			System.out.println(e.getLocalizedMessage());
-			return false;
+			//e.printStackTrace();
 		}
-		return true;
 	}
+	
+	
+	
 
 }
