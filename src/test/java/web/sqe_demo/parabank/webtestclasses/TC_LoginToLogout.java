@@ -45,9 +45,9 @@ public class TC_LoginToLogout extends BaseClass {
 		int datasetScreencount = 1;
 		LoginScreen objLoginScreen = PageFactory.initElements(driver, LoginScreen.class);
 		testLogHeader("Verify LoginScreen page");
-		objLoginScreen.fillinputUsername_784879(configFileObj.getProperty("Username"+ i + datasetScreencount));
+		objLoginScreen.fillinputUsername_785188(configFileObj.getProperty("Username"+ i + datasetScreencount));
 		printSuccessLogAndReport(logger,  "Entered Username : " + configFileObj.getProperty("Username"+ i + datasetScreencount));
-		objLoginScreen.fillinputPassword_784883(configFileObj.getProperty("Password"+ i + datasetScreencount));
+		objLoginScreen.fillinputPassword_785192(configFileObj.getProperty("Password"+ i + datasetScreencount));
 		printSuccessLogAndReport(logger,  "Entered Password : " + configFileObj.getProperty("Password"+ i + datasetScreencount));
 		objLoginScreen.clkinputLogIn_784916();
 		printInfoLogAndReport(logger, "Clicked on LogInButton");
