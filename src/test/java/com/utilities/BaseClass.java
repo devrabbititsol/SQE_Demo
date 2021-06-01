@@ -1,25 +1,30 @@
 package com.utilities;
 
-import com.configurations.GlobalData;
-import com.epam.reportportal.service.ReportPortal;
-import com.epam.ta.reportportal.ws.model.log.SaveLogRQ;
-import com.google.common.collect.ImmutableMap;
-import com.saucelabs.common.SauceOnDemandAuthentication;
-import com.saucelabs.saucerest.SauceREST;
-import groovy.json.StringEscapeUtils;
-import io.appium.java_client.AppiumDriver;
-import io.appium.java_client.android.AndroidDriver;
-import io.appium.java_client.ios.IOSDriver;
-import io.appium.java_client.remote.AndroidMobileCapabilityType;
-import io.appium.java_client.remote.AutomationName;
-import io.appium.java_client.remote.MobileCapabilityType;
-import io.appium.java_client.service.local.AppiumDriverLocalService;
-import io.appium.java_client.service.local.AppiumServiceBuilder;
+import static rp.com.google.common.base.Throwables.getStackTraceAsString;
+
+import java.awt.Robot;
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
+import java.awt.event.KeyEvent;
+import java.io.File;
+import java.lang.reflect.Method;
+import java.net.URL;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.openqa.selenium.Alert;
+import org.openqa.selenium.By;
 import org.openqa.selenium.Dimension;
-import org.openqa.selenium.*;
+import org.openqa.selenium.Keys;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.firefox.FirefoxBinary;
@@ -42,17 +47,22 @@ import org.testng.ITestResult;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.DataProvider;
 
-import java.awt.*;
-import java.awt.datatransfer.Clipboard;
-import java.awt.datatransfer.StringSelection;
-import java.awt.event.KeyEvent;
-import java.io.File;
-import java.lang.reflect.Method;
-import java.net.URL;
-import java.util.List;
-import java.util.*;
+import com.configurations.GlobalData;
+import com.epam.reportportal.service.ReportPortal;
+import com.epam.ta.reportportal.ws.model.log.SaveLogRQ;
+import com.google.common.collect.ImmutableMap;
+import com.saucelabs.common.SauceOnDemandAuthentication;
+import com.saucelabs.saucerest.SauceREST;
 
-import static rp.com.google.common.base.Throwables.getStackTraceAsString;
+import groovy.json.StringEscapeUtils;
+import io.appium.java_client.AppiumDriver;
+import io.appium.java_client.android.AndroidDriver;
+import io.appium.java_client.ios.IOSDriver;
+import io.appium.java_client.remote.AndroidMobileCapabilityType;
+import io.appium.java_client.remote.AutomationName;
+import io.appium.java_client.remote.MobileCapabilityType;
+import io.appium.java_client.service.local.AppiumDriverLocalService;
+import io.appium.java_client.service.local.AppiumServiceBuilder;
 
 
 public class BaseClass extends ReportPortalBaseClass {
@@ -79,22 +89,45 @@ public class BaseClass extends ReportPortalBaseClass {
 	}
 
 	public static WebElement waitForExpectedElement(WebDriver driver, WebElement element) {
-		try {
-			Thread.sleep(1000);
-		} catch (Exception e) {
-			System.out.println("");
-		}
 
 		//Actions action = new Actions(driver);
 		//action.moveToElement(element).perform();
 		//isElementDispalyed = element.isDisplayed();
-		initialInputDataClear(element); // if any text in input it will clear
-		WebDriverWait wait = new WebDriverWait(driver, 20);
-		return wait.until(ExpectedConditions.visibilityOf(element));
+		
+		scrollElement(driver, element);
+		initialInputDataClear(driver,element); // if any text in input it will clear
+		WebDriverWait wait = new WebDriverWait(driver, 40);
+		WebElement d =  wait.until(ExpectedConditions.visibilityOf(element));
+		String str = element.toString();
+	
+		if (str != null && str.toUpperCase().contains("INPUT") ) {
+			try {
+			 while (!element.getAttribute("value").equals("") && element.getAttribute("type").equals("text")) {
+			        element.sendKeys(Keys.BACK_SPACE);
+			  }
+			d.clear();
+			} catch (Exception e) {
+				System.out.println("Not editable input" + e.getLocalizedMessage());
+			}
+		}
+		
+		return d;
 
 	}
+	
+	
+	private static void scrollElement(WebDriver driver, WebElement element) {
+		String str = element.toString();
+		try {
+			if (str != null && element.getAttribute("id").contains("id-275fb8ae-e204-4146-86c9-a843a1435e2c-5-ccl1000_country8")) {
+				element.sendKeys(Keys.PAGE_DOWN);
+			}
+		} catch (Exception e) {
+			System.out.println("Not editable input" + e.getLocalizedMessage());
+		}
+	}
 
-	public static String initialInputDataClear(WebElement webElement) {
+	public static String initialInputDataClear(WebDriver driver, WebElement webElement) {
 		String str = webElement.toString();
 		try {
 			if (str != null && str.toUpperCase().contains("INPUT")) {
@@ -251,8 +284,9 @@ public class BaseClass extends ReportPortalBaseClass {
 				geckoFireFoxDriverPath = geckoFireFoxDriverPath.replace("geckodriver.exe", "macGeckodriver");
 			}
 		}
-
 	}
+	
+	
 	@SuppressWarnings("deprecation")
 	public WebDriver launchBrowser(String browserName, ConfigFilesUtility configFileObj) {
 		getDriversPath();
@@ -323,6 +357,11 @@ public class BaseClass extends ReportPortalBaseClass {
 				return null;
 			}
 			DesiredCapabilities capabilities = DesiredCapabilities.internetExplorer();
+			capabilities.setCapability("ignoreProtectedModeSettings", true);
+			capabilities.setCapability("ignoreZoomSetting", true);
+			//capabilities.setCapability("nativeEvents", false);
+			capabilities.setCapability("acceptSslCerts", true);
+			
 			capabilities.setCapability(InternetExplorerDriver.INTRODUCE_FLAKINESS_BY_IGNORING_SECURITY_DOMAINS, true);
 			System.setProperty("webdriver.ie.driver", iEDriverPath);
 			driver = new InternetExplorerDriver(capabilities);
@@ -424,27 +463,6 @@ public class BaseClass extends ReportPortalBaseClass {
 
 		reportCreation("pass", data);
 
-		try {
-			if (data.contains("satyanarayana bolli")) {
-
-				Robot robot = new Robot();
-				robot.keyPress(KeyEvent.VK_DOWN);
-				robot.keyRelease(KeyEvent.VK_DOWN);
-				robot.keyPress(KeyEvent.VK_ENTER);
-				robot.keyRelease(KeyEvent.VK_ENTER);
-				robot.delay(200);
-			}
-			if (data.contains("8142243634") || data.contains("9332") || data.contains("Ranga Swamy")) {
-
-				Robot robot = new Robot();
-				robot.keyPress(KeyEvent.VK_ENTER);
-				robot.keyRelease(KeyEvent.VK_ENTER);
-				robot.delay(200);
-			}
-		} catch (Exception e) {
-			System.out.println("");
-		}
-
 		if (logger != null)
 			logger.info(data);
 	}
@@ -499,7 +517,7 @@ public class BaseClass extends ReportPortalBaseClass {
 		ReportPortal.emitLog((rp.com.google.common.base.Function<String, SaveLogRQ>) itemId -> {
 			SaveLogRQ rq = new SaveLogRQ();
 			System.out.println("================="+itemId);
-			rq.setTestItemId(itemId);
+			//rq.setTestItemId(itemId);
 			rq.setLevel("ERROR");
 			rq.setLogTime(Calendar.getInstance().getTime());
 			if (cause != null) {
@@ -677,7 +695,8 @@ public class BaseClass extends ReportPortalBaseClass {
 	// Switching to iframe by position
 	public void switchToIframe(String xpath) {
 		try {
-			Thread.sleep(1000);
+			
+			Thread.sleep(35000);
 			for (int framePosition = 0; framePosition <= 5; framePosition++) {
 				try {
 					driver.switchTo().frame(framePosition);
@@ -960,3 +979,4 @@ public class BaseClass extends ReportPortalBaseClass {
 
 
 }
+
